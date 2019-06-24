@@ -154,10 +154,6 @@ class GradientAscentNoBaseline(Agent):
         self._q_values[action] += self._alpha * reward
 
 
-class Doll():
-    pass
-
-
 if __name__ == "__main__":
     # from utils import *
     k = 10
