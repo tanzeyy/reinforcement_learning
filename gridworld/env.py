@@ -59,6 +59,10 @@ class Agent:
         self.state_value[self.state] = gamma * \
             self.state_value[next_state] + reward
 
+    def reset_state_values(self):
+        for key in self.state_value.keys():
+            self.state_value[key] = 0
+
 
 def show_values(size, values):
     table = np.zeros(size)
@@ -81,7 +85,7 @@ if __name__ == "__main__":
         next_state, reward = grid.reward(agent.state, action)
         mem.append([agent.state, action, reward, next_state])
         agent.state = next_state
-        print(agent.state, action, reward)
+        # print(agent.state, action, reward)
 
     gamma = 0.99
     def func(x, y): return x + gamma * y
@@ -99,4 +103,5 @@ if __name__ == "__main__":
             agent.state_value[state] += p_a * np.sum([r + gamma * agent.state_value[n_s] for r, n_s in ts]) / s_a_cnt
             pass
 
-    show_values((5, 5), agent.state_value)
+    table = np.around(show_values((5, 5), agent.state_value), decimals=1)
+    print(table)
