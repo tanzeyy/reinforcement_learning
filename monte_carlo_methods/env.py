@@ -49,6 +49,8 @@ class BlackJackEnv(object):
             random.seed(seed)
         self.dealer_deck = []
         self.player_deck = []
+        self.action_space = [0, 1]
+        self.actions = ['hit', 'stick']
 
         # Init standard 52-card deck
         self._cards = []
@@ -85,8 +87,8 @@ class BlackJackEnv(object):
         random.shuffle(self._cards)
         # print('Deck shuffled, {} cards remained.'.format(len(self._cards)))
 
-    def step(self, action):
-        assert action in ['hit', 'stick'], 'action must be `hit` or `stick`'
+    def step(self, act):
+        action = self.actions[act]
         done = False
         player_busted = False
         dealer_bustsed = False
@@ -104,7 +106,7 @@ class BlackJackEnv(object):
         elif action == 'stick':
             # Simulate to dealer's `stick` or busted
             while True:
-                act = self.dealer_policy(self.dealer_deck)
+                act = self.actions[self.dealer_policy(self.dealer_deck)]
                 if act == 'hit':
                     card = self._draw()
                     self.dealer_deck.append(card)
@@ -138,13 +140,13 @@ class BlackJackEnv(object):
 
         # Check whether the current desk is natural (in the case, both of the
         # dealer and the player chooses to stick s.t. their policies.)
-        if self._is_natural(self.player_deck):
+        if action == 'stick' and self._is_natural(self.player_deck):
             if self._is_natural(self.dealer_deck):
                 reward = 0  # draw
             else:
                 reward = 1  # win
 
-        return self._obs, reward, done, {}
+        return self.numerical_state, reward, done, {}
 
     def reset(self):
         self.dealer_deck.clear()
@@ -154,7 +156,7 @@ class BlackJackEnv(object):
             self.player_deck.append(self._draw())
             self.dealer_deck.append(self._draw())
         self.turn = 'player'
-        return self._obs
+        return self.numerical_state
 
     @property
     def _obs(self):
@@ -166,4 +168,6 @@ class BlackJackEnv(object):
     @property
     def numerical_state(self):
         player_sum, usable_ace = deck_sum(self.player_deck)
-        return [player_sum, int(self.dealer_deck[0]), usable_ace]
+        return np.array(
+            [player_sum, int(self.dealer_deck[0]),
+             int(usable_ace)])
