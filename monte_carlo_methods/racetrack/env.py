@@ -33,6 +33,8 @@ class RacetrackEnv(gym.Env):
         assert self.action_space.contains(action), "action not valid"
         self._car_vel = self._car_vel + (action - 1)
         self._car_vel = np.clip(self._car_vel, 0, 4)
+        if (self._car_vel == (0, 0)).all():  # Give a random velocity
+            self._car_vel = np.array(random.choice([(0, 1), (1, 0)]))
         self._car_pos = self._car_pos + self._car_vel
         self._car_pos[0] = np.clip(self._car_pos[0], 0,
                                    self._track.shape[0] - 1)
@@ -64,7 +66,7 @@ class RacetrackEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    from utils import track1
+    from tracks import track1 as track
     env = RacetrackEnv(track)
     obs = env.reset()
     env.step([0, 2])
